@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Real Page V5 Brain</title>
+<style>body{background:#0a0a0a;color:#0f0;font-family:monospace;padding:20px}
+.card{background:#111;border:1px solid #0f0;padding:15px;margin:10px 0;border-radius:8px}
+button{background:#0f0;color:#000;padding:10px 20px;border:none;border-radius:5px;font-weight:bold}
+textarea{width:100%;background:#000;color:#0f0;border:1px solid #0f0;padding:10px}
+</style></head><body>
+<h1>🧠 REAL PAGE V5 DASHBOARD</h1>
+<div class="card">
+<h3>Protocol Control</h3>
+<p>Own Page: 100 comments/day<br>Other Pages: 5 per 3hrs<br>Banned: Ruto must go, tribal words</p>
+<label>Emergency Stop</label><br>
+<button onclick="alert('To STOP, edit config.json posting.emergencyStop=true')">🛑 STOP ALL POSTING</button>
+</div>
+<div class="card">
+<h3>Templates (edit in config.json)</h3>
+<textarea id="t" rows="10">Loading brain from config.json...</textarea>
+<button onclick="load()">Reload Brain</button>
+</div>
+<div class="card"><h3>Next Post</h3><p>Daily at 17:15 EAT - GitHub Actions will post auto</p>
+<p>Dashboard URL: <b>https://griviann.github.io/real-page-brain/dashboard/</b></p>
+</div>
+<script>
+async function load(){
+ document.getElementById('t').value = await (await fetch('https://raw.githubusercontent.com/griviann/real-page-brain/main/config.json')).text();
+} load();
+</script>
+</body></html>
