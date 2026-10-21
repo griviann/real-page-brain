@@ -1,0 +1,19 @@
+name: Real Page V5 Brain
+on:
+  schedule:
+    - cron: '15 14 * * *'
+  workflow_dispatch:
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install
+      - run: node agent.js
+        env:
+          PAGE_ID: ${{ secrets.PAGE_ID }}
+          PAGE_TOKEN: ${{ secrets.PAGE_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
