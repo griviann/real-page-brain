@@ -1,10 +1,6 @@
 {
   "version": "V5",
-  "posting": {
-    "emergencyStop": false,
-    "interval_hours": 3
-  },
-  "towns": ["Kisumu","Nakuru","Eldoret","Nairobi","Kisii","Mombasa","Kakamega","Bungoma","Kapenguria","Kitale","Webuye"],
-  "phone": "0758825414",
-  "business": "Real Satisfaction"
+  "posting": { "emergencyStop": false },
+  "towns": ["Kisumu","Nakuru","Eldoret","Nairobi","Kisii","Mombasa","Kapenguria"],
+  "phone": "0758825414"
 }
