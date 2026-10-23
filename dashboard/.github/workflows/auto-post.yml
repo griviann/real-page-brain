@@ -1,7 +1,10 @@
-name: Real Page V5 Brain
+name: Real Satisfaction Autopilot V7
 on:
   schedule:
-    - cron: '15 14 * * *'
+    - cron: '30 4 * * *'   # 7:30 AM Nairobi - Morning Motivation
+    - cron: '30 9 * * *'   # 12:30 PM Nairobi - Engagement
+    - cron: '30 16 * * *'  # 7:30 PM Nairobi - Evening Reflection
+    - cron: '*/15 * * * *' # Every 15 mins - Reply Comments
   workflow_dispatch:
 jobs:
   post:
@@ -12,7 +15,16 @@ jobs:
         with:
           node-version: '20'
       - run: npm install
-      - run: node agent.js
+      - name: Decide Job
+        run: |
+          HOUR=$(date -u +%H)
+          if [ "$HOUR" = "04" ] || [ "$HOUR" = "09" ] || [ "$HOUR" = "16" ]; then
+            echo "Posting time"
+            node agent.js --post
+          else
+            echo "Comment reply time"
+            node commentBot.js --reply
+          fi
         env:
           PAGE_ID: ${{ secrets.PAGE_ID }}
           PAGE_TOKEN: ${{ secrets.PAGE_TOKEN }}
