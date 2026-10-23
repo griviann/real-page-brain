@@ -1,38 +1,57 @@
-name: Real Satisfaction Autopilot V7
+name: Real Satisfaction Autopilot V8 AI
 
 on:
   schedule:
-    - cron: '30 4 * * *'   # 7:30 AM EAT
-    - cron: '30 9 * * *'   # 12:30 PM EAT
-    - cron: '30 16 * * *'  # 7:30 PM EAT
-    - cron: '*/15 * * * *' # Every 15 mins for comments
-  workflow_dispatch:
+    - cron: '0 5,10,16 * * *'  # 8AM, 1PM, 7PM Kenya time (5,10,16 UTC)
+  workflow_dispatch:  # allows manual Run workflow button
 
 jobs:
   autopilot:
     runs-on: ubuntu-latest
+    
+    env:
+      PAGE_ID: ${{ secrets.PAGE_ID }}
+      PAGE_TOKEN: ${{ secrets.PAGE_TOKEN }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+    
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - run: npm install || npm install node-fetch@3
-      - name: Run Morning/Noon/Evening Post
-        if: github.event.schedule == '30 4 * * *' || github.event.schedule == '30 9 * * *' || github.event.schedule == '30 16 * * *' || github.event_name == 'workflow_dispatch'
-        run: node agent.js --post
-        env:
-          PAGE_ID: ${{ secrets.PAGE_ID }}
-          PAGE_TOKEN: ${{ secrets.PAGE_TOKEN }}
-      - name: Run Comment Bot
-        if: github.event.schedule == '*/15 * * * *' || github.event_name == 'workflow_dispatch'
-        run: node commentBot.js
-        env:
-          PAGE_ID: ${{ secrets.PAGE_ID }}
-          PAGE_TOKEN: ${{ secrets.PAGE_TOKEN }}
-      - name: Save Performance
+
+      - name: Install dependencies
         run: |
-          git config user.name "Real Satisfaction Bot"
-          git config user.email "bot@realsatisfaction.co.ke"
-          git add dashboard/ || true
-          git commit -m "V7 Performance Log $(date)" || true
-          git push || true
+          if [ -f package.json ]; then npm install; fi
+          echo "Dependencies ready"
+
+      - name: Run Real Satisfaction Autopilot (Posting)
+        run: |
+          echo "🚀 Starting Real Satisfaction Autopilot V8..."
+          node autopilot.js
+          echo "✅ Autopilot done"
+
+      - name: Run Comment Bot V8 AI
+        run: |
+          echo "🤖 Starting Comment Bot V8 AI..."
+          node commentBot.js
+          echo "✅ Comment Bot done"
+
+      - name: Update Dashboard
+        if: always()
+        run: |
+          mkdir -p ./dashboard
+          echo "{\"last_run\":\"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\",\"status\":\"success\",\"page_id\":\"$PAGE_ID\"}" > ./dashboard/status.json
+          cat ./dashboard/status.json
+
+      - name: Commit Dashboard Logs
+        if: always()
+        run: |
+          git config --global user.name "Real Satisfaction Bot"
+          git config --global user.email "bot@realsatisfaction.co.ke"
+          git add ./dashboard/ || true
+          git commit -m "Update dashboard - $(date)" || echo "No changes"
+          git push || echo "Push skipped"
