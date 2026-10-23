@@ -1,151 +1,156 @@
-// Real Satisfaction - Agent.js V7 Autopilot
-// 3 posts per day + Performance Tracking
-const fs = require('fs');
+// === REAL SATISFACTION AUTOPILOT V7 - FINAL FIXED ===
+import fs from 'fs';
+import path from 'path';
 
-let config;
+const configPath = './config.json';
+let config = {
+  version: "V7",
+  posting: { emergencyStop: false },
+  towns: ["Kisumu", "Nakuru", "Eldoret", "Nairobi", "Mombasa"],
+  counties: [
+    { name: "Nairobi", hashtag: "#Nairobi", caption: "Karibu Nairobi - Real Satisfaction is here!" },
+    { name: "Mombasa", hashtag: "#Mombasa", caption: "Mombasa love - Beyond Imagination!" },
+    { name: "Kisumu", hashtag: "#Kisumu", caption: "Kisumu dala - Satisfaction guaranteed!" },
+    { name: "Nakuru", hashtag: "#Nakuru", caption: "Nakuru we deliver!" },
+    { name: "Eldoret", hashtag: "#Eldoret", caption: "Eldoret home of champions!" }
+  ],
+  core_message: "Real Satisfaction - Beyond Imagination"
+};
+
 try {
-  config = require('./config.json');
+  if (fs.existsSync(configPath)) {
+    const fileConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    config = { ...config, ...fileConfig };
+  }
 } catch (e) {
-  config = {
-    counties: [
-      { name: "Nairobi", hashtag: "#Nairobi", caption: "Nairobi, city of dreamers!" },
-      { name: "Mombasa", hashtag: "#Mombasa", caption: "Mombasa, pwani si ndoto tu!" },
-      { name: "Kisumu", hashtag: "#Kisumu", caption: "Kisumu, lake of opportunities!" },
-      { name: "Nakuru", hashtag: "#Nakuru", caption: "Nakuru, tunasonga!" },
-      { name: "Kisii", hashtag: "#Kisii", caption: "Kisii, nguvu ya bidii!" },
-      { name: "Eldoret", hashtag: "#Eldoret", caption: "Eldoret, champions home!" },
-      { name: "Machakos", hashtag: "#Machakos", caption: "Machakos, kazi kwa bidii!" }
-    ],
-    core_message: "Real Satisfaction - Beyond Imagination"
-  };
+  console.log("Using fallback config");
 }
 
+function getSlot() {
+  const hour = new Date().getUTCHours() + 3; // EAT Nairobi time
+  if (hour < 12) return "MORNING";
+  if (hour < 17) return "NOON";
+  return "EVENING";
+}
+
+function getRandomCounty() {
+  const list = config.counties || [];
+  if (!list.length) return { name: "Kenya", hashtag: "#Kenya", caption: "" };
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+function normalizeCounty(c) {
+  if (typeof c === 'string') return { name: c, hashtag: `#${c}`, caption: "" };
+  return c;
+}
+
+const MANTRAS = [
+  "AMKA. JIPANGE. JARIBU TENA.",
+  "HUSTLE IKO, LAKINI MINDSET NDIO KILA KITU.",
+  "USIACHE KESHO IIBE NGUVU YA LEO.",
+  "FOCUS. DISCIPLINE. CONSISTENCY.",
+  "WEKA BIDII, MUNGU ATAJAZA KILICHOBAKI."
+];
+
 const POST_TEMPLATES = {
-  morning: (county) => `☀️ GOOD MORNING ${county.name.toUpperCase()}!
+  MORNING: (countyRaw) => {
+    const county = normalizeCounty(countyRaw);
+    const mantra = MANTRAS[Math.floor(Math.random() * MANTRAS.length)];
+    return `☀️ GOOD MORNING ${county.name.toUpperCase()}!
 
 ${county.caption}
 
-${config.core_message || "Beyond Imagination"}
+${config.core_message}
 
 Today's Mantra:
-AMKA. JIPANGE. JARIBU TENA.
+${mantra}
 
-You didn't wake up to be average. You woke up to be GREAT.
+You didn't wake up to be average.
+You woke up to be GREAT.
 
 Uko tayari?
 
-#RealSatisfaction ${county.hashtag} #BeyondImagination #KenyaMotivation`,
+#RealSatisfaction ${county.hashtag} #BeyondImagination #KenyaMotivation`;
+  },
+  NOON: (countyRaw) => {
+    const county = normalizeCounty(countyRaw);
+    return `🔥 MIDDAY CHECK-IN ${county.name.toUpperCase()}!
 
-  noon: (county) => `🤔 MASWALI YA MCHANA - ${county.name.toUpperCase()}!
+${county.caption}
 
-Safari yako iko wapi leo? 1-10
+Watu wengine wamechoka, wewe bado unasonga.
+That's the difference.
 
-1 = Naanza tu leo
-5 = Niko katikati, napambana
-10 = Niko karibu na ndoto yangu!
+${config.core_message}
 
-COMMENT number yako hapa chini 👇
-Tutakujibu na motivation ya kukupeleka next level!
+#RealSatisfaction ${county.hashtag} #HustleKenya`;
+  },
+  EVENING: (countyRaw) => {
+    const county = normalizeCounty(countyRaw);
+    return `🌙 EVENING ${county.name.toUpperCase()}!
 
-Na usisahau ku-follow page!
+${county.caption}
 
-#RealSatisfaction ${county.hashtag} #Engagement`,
+Leo umejaribu. Kesho utashinda.
+Rest, reset, return stronger.
 
-  evening: (county) => `🌙 USIKU MWEMA - ${county.name.toUpperCase()}
+${config.core_message}
 
-Leo umefanya kitu kimoja kusogea karibu na ndoto yako?
-
-Hata kama ni:
-✓ Kusoma page moja
-✓ Kufanya mazoezi dakika 10
-✓ Ku-save 100 bob
-✓ Kuomba Mungu
-
-Hiyo ni HATUA mkuu. Hatua ndogo ndio inajenga ndoto kubwa.
-
-Lala na ndoto. Amka na mpango. Kesho tunarudia tena.
-
-We believe in you.
-
-${config.core_message || "Real Satisfaction - Beyond Imagination"}
-
-${county.hashtag} #RealSatisfaction`
+#RealSatisfaction ${county.hashtag} #KenyaEvening`;
+  }
 };
 
-async function createPost() {
-  const now = new Date();
-  const nairobiHour = now.getUTCHours() + 3; // UTC+3 for Nairobi
-  const hour = now.getUTCHours(); // GitHub uses UTC
+async function postToFacebook(message) {
+  const token = process.env.FB_PAGE_ACCESS_TOKEN || process.env.FACEBOOK_PAGE_TOKEN || process.env.PAGE_TOKEN;
+  const pageId = process.env.FB_PAGE_ID || process.env.PAGE_ID || "108984271984415";
 
-  let slot = 'morning';
-  if (hour === 9) slot = 'noon';      // 12:30 PM EAT = 9:30 UTC
-  if (hour === 16) slot = 'evening';  // 7:30 PM EAT = 16:30 UTC
-  
-  // Pick county based on day + slot to avoid repeating
-  const day = now.getDate();
-  const slotIndex = slot === 'morning' ? 0 : slot === 'noon' ? 1 : 2;
-  const countyIndex = (day + slotIndex) % config.counties.length;
-  const county = config.counties[countyIndex];
-
-  const caption = POST_TEMPLATES[slot](county);
-
-  console.log(`=== REAL SATISFACTION V7 ===`);
-  console.log(`Time: ${now.toISOString()} | Slot: ${slot.toUpperCase()} | County: ${county.name}`);
-  console.log(caption);
-  console.log(`============================`);
-
-  // --- FACEBOOK POSTING ---
-  const PAGE_ID = process.env.PAGE_ID;
-  const PAGE_TOKEN = process.env.PAGE_TOKEN;
-
-  if (PAGE_ID && PAGE_TOKEN) {
-    try {
-      const fetch = (await import('node-fetch')).default || require('node-fetch');
-      // For text post:
-      const res = await fetch(`https://graph.facebook.com/${PAGE_ID}/feed`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: caption,
-          access_token: PAGE_TOKEN
-        })
-      });
-      const data = await res.json();
-      console.log("Facebook Response:", data);
-    } catch (err) {
-      console.error("Facebook post failed (will retry next run):", err.message);
-    }
-  } else {
-    console.log("DRY RUN - No PAGE_ID/TOKEN found. Would post to Facebook.");
+  if (!token) {
+    console.log("!!! NO FB TOKEN FOUND - Skipping actual post (DRY RUN) !!!");
+    console.log("Add secret FB_PAGE_ACCESS_TOKEN in GitHub Secrets");
+    return { dryRun: true };
   }
 
-  // --- PERFORMANCE TRACKING ---
   try {
-    fs.mkdirSync('./dashboard', { recursive: true });
-    
-    const log = {
-      timestamp: now.toISOString(),
-      slot: slot,
-      county: county.name,
-      caption_preview: caption.substring(0, 100),
-      status: PAGE_ID ? "posted" : "dry_run"
-    };
-    
-    fs.writeFileSync('./dashboard/last_post.json', JSON.stringify(log, null, 2));
-    
-    // Append to performance log
-    const csvLine = `${now.toISOString()},${slot},${county.name},posted\n`;
-    fs.appendFileSync('./dashboard/performance.csv', csvLine);
-    
-    console.log("Performance logged to dashboard/");
-  } catch (e) {
-    console.log("Logging failed:", e.message);
+    // Using built-in fetch (NO node-fetch needed)
+    const res = await fetch(`https://graph.facebook.com/${pageId}/feed`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message, access_token: token })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(JSON.stringify(data.error));
+    console.log("✅ Facebook posted successfully:", data.id || data);
+    return data;
+  } catch (err) {
+    console.error(`Facebook post failed (will retry next run): ${err.message}`);
+    throw err;
   }
 }
 
-// Run if called with --post
-if (process.argv.includes('--post')) {
-  createPost();
+async function main() {
+  console.log("=== REAL SATISFACTION V7 ===");
+  const slot = getSlot();
+  const county = getRandomCounty();
+  const time = new Date().toISOString();
+
+  console.log(`Time: ${time} | Slot: ${slot} | County: ${normalizeCounty(county).name}`);
+
+  const templateFn = POST_TEMPLATES[slot] || POST_TEMPLATES.MORNING;
+  const message = templateFn(county);
+
+  console.log(message);
+  console.log("==============================");
+
+  if (process.argv.includes('--post')) {
+    await postToFacebook(message);
+  }
+
+  // Save performance
+  try {
+    if (!fs.existsSync('dashboard')) fs.mkdirSync('dashboard', { recursive: true });
+    fs.writeFileSync('dashboard/last_run.json', JSON.stringify({ time, slot, county, success: true }, null, 2));
+    console.log("Performance logged to dashboard/");
+  } catch (e) {}
 }
 
-module.exports = { createPost };
+main();
