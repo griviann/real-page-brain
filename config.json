@@ -1,6 +1,8 @@
 {
-  "version": "V5",
-  "posting": { "emergencyStop": false },
-  "towns": ["Kisumu","Nakuru","Eldoret","Nairobi","Kisii","Mombasa","Kapenguria"],
-  "phone": "0758825414"
+  "version": "V7",
+  "posting": {
+    "emergencyStop": false
+  },
+  "towns": ["Kisumu", "Nakuru", "Eldoret", "Nairobi", "Mombasa"],
+  "counties": ["Kisumu", "Nakuru", "Eldoret", "Nairobi", "Mombasa"]
 }
