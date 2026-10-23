@@ -2,56 +2,40 @@ name: Real Satisfaction Autopilot V8 AI
 
 on:
   schedule:
-    - cron: '0 5,10,16 * * *'  # 8AM, 1PM, 7PM Kenya time (5,10,16 UTC)
-  workflow_dispatch:  # allows manual Run workflow button
+    - cron: '30 4 * * *'
+    - cron: '30 9 * * *'
+    - cron: '30 16 * * *'
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
 
 jobs:
   autopilot:
     runs-on: ubuntu-latest
-    
     env:
       PAGE_ID: ${{ secrets.PAGE_ID }}
       PAGE_TOKEN: ${{ secrets.PAGE_TOKEN }}
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js 20
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
-
-      - name: Install dependencies
+      - name: Find files location
         run: |
-          if [ -f package.json ]; then npm install; fi
-          echo "Dependencies ready"
-
-      - name: Run Real Satisfaction Autopilot (Posting)
+          echo "=== LIST FILES ==="
+          ls -R | head -n 100
+          echo "=================="
+      - name: Run Autopilot Posting
         run: |
-          echo "🚀 Starting Real Satisfaction Autopilot V8..."
-          node autopilot.js
-          echo "✅ Autopilot done"
-
+          if [ -f "./autopilot.js" ]; then node ./autopilot.js
+          elif [ -f "./real-page-brain/autopilot.js" ]; then node ./real-page-brain/autopilot.js
+          elif [ -f "./src/autopilot.js" ]; then node ./src/autopilot.js
+          else echo "Searching..." && find . -name "autopilot.js" -exec node {} \;
+          fi
       - name: Run Comment Bot V8 AI
         run: |
-          echo "🤖 Starting Comment Bot V8 AI..."
-          node commentBot.js
-          echo "✅ Comment Bot done"
-
-      - name: Update Dashboard
-        if: always()
-        run: |
-          mkdir -p ./dashboard
-          echo "{\"last_run\":\"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\",\"status\":\"success\",\"page_id\":\"$PAGE_ID\"}" > ./dashboard/status.json
-          cat ./dashboard/status.json
-
-      - name: Commit Dashboard Logs
-        if: always()
-        run: |
-          git config --global user.name "Real Satisfaction Bot"
-          git config --global user.email "bot@realsatisfaction.co.ke"
-          git add ./dashboard/ || true
-          git commit -m "Update dashboard - $(date)" || echo "No changes"
-          git push || echo "Push skipped"
+          if [ -f "./commentBot.js" ]; then node ./commentBot.js
+          elif [ -f "./real-page-brain/commentBot.js" ]; then node ./real-page-brain/commentBot.js
+          elif [ -f "./src/commentBot.js" ]; then node ./src/commentBot.js
+          else echo "Searching..." && find . -name "commentBot.js" -exec node {} \;
+          fi
