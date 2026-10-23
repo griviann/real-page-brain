@@ -4,5 +4,12 @@
     "emergencyStop": false
   },
   "towns": ["Kisumu", "Nakuru", "Eldoret", "Nairobi", "Mombasa"],
-  "counties": ["Kisumu", "Nakuru", "Eldoret", "Nairobi", "Mombasa"]
+  "counties": [
+    { "name": "Nairobi", "hashtag": "#Nairobi", "caption": "Karibu Nairobi - Real Satisfaction is here!" },
+    { "name": "Mombasa", "hashtag": "#Mombasa", "caption": "Mombasa love - Beyond Imagination!" },
+    { "name": "Kisumu", "hashtag": "#Kisumu", "caption": "Kisumu dala - Satisfaction guaranteed!" },
+    { "name": "Nakuru", "hashtag": "#Nakuru", "caption": "Nakuru we deliver!" },
+    { "name": "Eldoret", "hashtag": "#Eldoret", "caption": "Eldoret home of champions!" }
+  ],
+  "core_message": "Real Satisfaction - Beyond Imagination"
 }
