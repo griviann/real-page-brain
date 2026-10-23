@@ -1,41 +1,38 @@
-name: Real Satisfaction Autopilot V8 AI
+const PAGE_ID = process.env.PAGE_ID;
+const PAGE_TOKEN = process.env.PAGE_TOKEN;
 
-on:
-  schedule:
-    - cron: '30 4 * * *'
-    - cron: '30 9 * * *'
-    - cron: '30 16 * * *'
-    - cron: '*/15 * * * *'
-  workflow_dispatch:
+async function postToFacebook() {
+  if (!PAGE_ID || !PAGE_TOKEN) {
+    console.log("❌ Missing PAGE_ID or PAGE_TOKEN");
+    return;
+  }
 
-jobs:
-  autopilot:
-    runs-on: ubuntu-latest
-    env:
-      PAGE_ID: ${{ secrets.PAGE_ID }}
-      PAGE_TOKEN: ${{ secrets.PAGE_TOKEN }}
-      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      - name: Find files location
-        run: |
-          echo "=== LIST FILES ==="
-          ls -R | head -n 100
-          echo "=================="
-      - name: Run Autopilot Posting
-        run: |
-          if [ -f "./autopilot.js" ]; then node ./autopilot.js
-          elif [ -f "./real-page-brain/autopilot.js" ]; then node ./real-page-brain/autopilot.js
-          elif [ -f "./src/autopilot.js" ]; then node ./src/autopilot.js
-          else echo "Searching..." && find . -name "autopilot.js" -exec node {} \;
-          fi
-      - name: Run Comment Bot V8 AI
-        run: |
-          if [ -f "./commentBot.js" ]; then node ./commentBot.js
-          elif [ -f "./real-page-brain/commentBot.js" ]; then node ./real-page-brain/commentBot.js
-          elif [ -f "./src/commentBot.js" ]; then node ./src/commentBot.js
-          else echo "Searching..." && find . -name "commentBot.js" -exec node {} \;
-          fi
+  const messages = [
+    `Good Morning Kenya! ☀️ Real Satisfaction tunasema Beyond Imagination! 🛒 Tunadeliver countrywide, Nakuru base. DM your location today! 🔥 #BeyondImagination`,
+    `Wamlambez? Bei ni friendly sana! 💯 Real Satisfaction — quality products at unbeatable prices! Check our posts na DM for offer ya leo 😎🙏`,
+    `Eldoret, Nairobi, Nakuru, Kisumu — tuko rada! 🚚 Real Satisfaction delivery ni countrywide! Order leo, receive kesho! DM now! 🔥🔥`,
+    `Happy customers = Real Satisfaction! 🙏 Asante sana for trusting us! Beyond Imagination ndio slogan yetu! New stock daily — stay tuned! ❤️`,
+    `Usikose deal! 🔥🔥 Real Satisfaction — Your trusted online shop in Kenya! DM "OFFER" nikupe best price leo! #Nakuru #Kenya`
+  ];
+
+  const message = messages[Math.floor(Math.random() * messages.length)];
+  console.log(`📤 Posting: ${message}`);
+
+  const url = `https://graph.facebook.com/v18.0/${PAGE_ID}/feed`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: message, access_token: PAGE_TOKEN })
+  });
+
+  const data = await res.json();
+  console.log("FB Response:", JSON.stringify(data));
+
+  if (data.id) {
+    console.log(`✅ POSTED SUCCESS: ${data.id}`);
+  } else {
+    console.log(`❌ FAILED: ${data.error?.message || 'Unknown error'}`);
+  }
+}
+
+postToFacebook();
