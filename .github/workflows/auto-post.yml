@@ -1,10 +1,13 @@
-name: Real Satisfaction Autopilot V8 AI
+name: Real Satisfaction Autopilot V9 - 30min Reply
+
 on:
   schedule:
-    - cron: '30 4 * * *'
-    - cron: '30 9 * * *'
-    - cron: '30 16 * * *'
-  workflow_dispatch:
+    # Every 30 mins for COMMENTS - 7AM to 10PM Kenya time (4-19 UTC)
+    - cron: '0,30 4-19 * * *'
+    # Posts at 8AM, 1PM, 7PM EAT = 5,10,16 UTC (already covered but explicit)
+    - cron: '0 5,10,16 * * *'
+  workflow_dispatch:  # manual test button
+
 jobs:
   autopilot:
     runs-on: ubuntu-latest
@@ -12,12 +15,36 @@ jobs:
       PAGE_ID: ${{ secrets.PAGE_ID }}
       PAGE_TOKEN: ${{ secrets.PAGE_TOKEN }}
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Run Autopilot Posting
-        run: node autopilot.js
-      - name: Run Comment Bot V8 AI
-        run: node commentBot.js
+
+      - name: Check what to run
+        id: check
+        run: |
+          HOUR=$(date -u +%H)
+          echo "Current UTC hour: $HOUR"
+          if [ "$HOUR" = "05" ] || [ "$HOUR" = "10" ] || [ "$HOUR" = "16" ]; then
+            echo "is_post_time=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_post_time=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run Posting Bot (only at 8AM,1PM,7PM EAT)
+        if: steps.check.outputs.is_post_time == 'true'
+        run: |
+          echo "🚀 POST TIME - Running autopilot.js"
+          node autopilot.js
+          echo "✅ Posting done"
+
+      - name: Run Comment Bot V8 AI (EVERY 30 MINS)
+        run: |
+          echo "🤖 Running commentBot.js - replying to all pending comments"
+          node commentBot.js
+          echo "✅ Comment bot done - next reply in 30 mins"
