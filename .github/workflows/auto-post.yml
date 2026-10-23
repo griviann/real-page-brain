@@ -1,19 +1,38 @@
-name: Real Page V5 Brain
+name: Real Satisfaction Autopilot V7
+
 on:
   schedule:
-    - cron: '15 14 * * *'
+    - cron: '30 4 * * *'   # 7:30 AM EAT
+    - cron: '30 9 * * *'   # 12:30 PM EAT
+    - cron: '30 16 * * *'  # 7:30 PM EAT
+    - cron: '*/15 * * * *' # Every 15 mins for comments
   workflow_dispatch:
+
 jobs:
-  post:
+  autopilot:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - run: npm install
-      - run: node agent.js
+      - run: npm install || npm install node-fetch@3
+      - name: Run Morning/Noon/Evening Post
+        if: github.event.schedule == '30 4 * * *' || github.event.schedule == '30 9 * * *' || github.event.schedule == '30 16 * * *' || github.event_name == 'workflow_dispatch'
+        run: node agent.js --post
         env:
           PAGE_ID: ${{ secrets.PAGE_ID }}
           PAGE_TOKEN: ${{ secrets.PAGE_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
+      - name: Run Comment Bot
+        if: github.event.schedule == '*/15 * * * *' || github.event_name == 'workflow_dispatch'
+        run: node commentBot.js
+        env:
+          PAGE_ID: ${{ secrets.PAGE_ID }}
+          PAGE_TOKEN: ${{ secrets.PAGE_TOKEN }}
+      - name: Save Performance
+        run: |
+          git config user.name "Real Satisfaction Bot"
+          git config user.email "bot@realsatisfaction.co.ke"
+          git add dashboard/ || true
+          git commit -m "V7 Performance Log $(date)" || true
+          git push || true
