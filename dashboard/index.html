@@ -1,29 +1,150 @@
 <!DOCTYPE html>
-<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Real Page V5 Brain</title>
-<style>body{background:#0a0a0a;color:#0f0;font-family:monospace;padding:20px}
-.card{background:#111;border:1px solid #0f0;padding:15px;margin:10px 0;border-radius:8px}
-button{background:#0f0;color:#000;padding:10px 20px;border:none;border-radius:5px;font-weight:bold}
-textarea{width:100%;background:#000;color:#0f0;border:1px solid #0f0;padding:10px}
-</style></head><body>
-<h1>🧠 REAL PAGE V5 DASHBOARD</h1>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#000000">
+<title>Real Satisfaction Agent V11</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,sans-serif;background:#0a0a0a;color:#fff;padding:12px;padding-bottom:80px}
+.header{background:linear-gradient(135deg,#25D366,#128C7E);padding:18px;border-radius:16px;text-align:center;margin-bottom:12px}
+.card{background:#1a1a1a;padding:14px;border-radius:14px;margin-bottom:10px;border:1px solid #2a2a2a}
+h2{font-size:18px}h3{font-size:14px;margin-bottom:6px;color:#25D366}
+textarea,input,select{width:100%;padding:13px;border-radius:10px;border:1px solid #333;margin-top:8px;background:#252525;color:#fff;font-size:14px}
+button{padding:15px;width:100%;border:none;border-radius:12px;font-weight:900;font-size:14px;margin-top:10px;cursor:pointer}
+.btn-green{background:#25D366;color:#000}.btn-red{background:#ff3b30;color:#fff}.btn-gray{background:#333;color:#fff}
+.tabs{display:flex;gap:6px;margin-bottom:10px}.tab{flex:1;padding:10px;background:#1a1a1a;border-radius:10px;text-align:center;font-size:12px;border:1px solid #333}.tab.active{background:#25D366;color:#000;font-weight:900}
+#preview{width:100%;border-radius:12px;margin-top:10px;display:none;max-height:250px;object-fit:cover}
+.switch{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #222}
+.badge{background:#25D366;color:#000;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:900}
+</style>
+</head>
+<body>
+
+<div class="header">
+<h2>🔥 Real Satisfaction V11</h2>
+<p style="font-size:11px;opacity:0.9">BREAKTHROUGH EDITION • Voice • Magic • Video • Closer</p>
+<p style="margin-top:6px"><span class="badge">● LIVE</span> <span id="liveTime"></span></p>
+</div>
+
+<div class="tabs">
+<div class="tab active" onclick="showTab('post')">🚀 POST</div>
+<div class="tab" onclick="showTab('behavior')">🧠 BEHAVIOR</div>
+<div class="tab" onclick="showTab('intel')">📊 INTEL</div>
+</div>
+
+<!-- POST TAB -->
+<div id="tab-post">
 <div class="card">
-<h3>Protocol Control</h3>
-<p>Own Page: 100 comments/day<br>Other Pages: 5 per 3hrs<br>Banned: Ruto must go, tribal words</p>
-<label>Emergency Stop</label><br>
-<button onclick="alert('To STOP, edit config.json posting.emergencyStop=true')">🛑 STOP ALL POSTING</button>
+<h3>🎤 VOICE-TO-SALE (Breakthrough 1)</h3>
+<button class="btn-red" onclick="startVoice()">🎤 TAP & SPEAK SHENG/SWAHILI</button>
+<p id="voiceText" style="color:#25D366;font-size:12px;margin-top:8px;font-weight:bold"></p>
+<textarea id="instruction" rows="3" placeholder="Or type: Ex: Post brown koti bei 4k, Eldoret free delivery leo, be funny"></textarea>
+</div>
+
+<div class="card">
+<h3>📸 MEDIA STUDIO (Breakthrough 2 & 3)</h3>
+<input type="file" id="mediaFile" accept="image/*,video/*" onchange="previewMedia()">
+<img id="preview">
+<div class="switch"><span>🪄 Magic Enhance (Logo + Price Tag)</span><input type="checkbox" id="magic" checked></div>
+<div class="switch"><span>🎬 Make 15s Video Ad (Reel - 10x Reach)</span><input type="checkbox" id="makeVideo"></div>
+<div class="switch"><span>💰 M-Pesa Closer Active</span><input type="checkbox" id="mpesa" checked></div>
+</div>
+
+<div class="card">
+<h3>🎯 SMART TARGETING</h3>
+<select id="county">
+<option value="auto">🤖 Auto Intelligence (Best County Now)</option>
+<option value="Eldoret">Eldoret - Free Delivery</option>
+<option value="Nairobi">Nairobi</option>
+<option value="Nakuru">Nakuru</option>
+<option value="Kisumu">Kisumu</option>
+</select>
+<select id="tone">
+<option value="sheng_selling">Sheng Hustler (Selling)</option>
+<option value="funny">Funny Viral</option>
+<option value="professional">Professional</option>
+<option value="soft">Soft / Customer Love</option>
+</select>
+<input type="text" id="price" placeholder="Bei (Ex: 3500) - For Magic Tag">
+</div>
+</div>
+
+<!-- BEHAVIOR TAB -->
+<div id="tab-behavior" style="display:none">
+<div class="card">
+<h3>🧠 BEHAVIORAL AMENDMENTS</h3>
+<textarea id="behaviorRule" rows="4" placeholder="Ex: From today don't say price in comments, just say 'DM your number nikuitie'. Be more funny when replying."></textarea>
+<select id="personality">
+<option value="sheng_hustler_closer">Sheng Hustler + Closer</option>
+<option value="soft_caring">Soft & Caring</option>
+<option value="funny_viral">Funny Viral</option>
+</select>
+<input type="text" id="mpesaTill" placeholder="M-Pesa Till Number (Ex: 123456)">
+<button class="btn-gray" onclick="saveBehavior()">💾 SAVE BEHAVIOR - AI Will Obey</button>
+</div>
+</div>
+
+<!-- INTEL TAB -->
+<div id="tab-intel" style="display:none">
+<div class="card">
+<h3>📊 COUNTY INTELLIGENCE</h3>
+<p style="font-size:12px;line-height:18px">
+🔥 Best Now: <b id="bestCounty">Calculating...</b><br>
+⏰ Eldoret Peak: 8PM (workers home)<br>
+⏰ Nairobi Peak: 1PM (lunch)<br>
+💡 Tip: Reels get 10x reach vs text in Kenya
+</p>
 </div>
 <div class="card">
-<h3>Templates (edit in config.json)</h3>
-<textarea id="t" rows="10">Loading brain from config.json...</textarea>
-<button onclick="load()">Reload Brain</button>
+<h3>💾 SETUP (Once)</h3>
+<input type="password" id="ghToken" placeholder="GitHub Token ghp_...">
+<input type="text" id="repo" value="griviann/real-page-brain">
+<button class="btn-gray" onclick="localStorage.setItem('ghToken',document.getElementById('ghToken').value);localStorage.setItem('repo',document.getElementById('repo').value);alert('Saved on phone!')">Save Token on Phone</button>
+<p style="font-size:10px;margin-top:8px;opacity:0.6">Token saved locally only. Never sent elsewhere.</p>
 </div>
-<div class="card"><h3>Next Post</h3><p>Daily at 17:15 EAT - GitHub Actions will post auto</p>
-<p>Dashboard URL: <b>https://griviann.github.io/real-page-brain/dashboard/</b></p>
 </div>
+
+<div class="card">
+<button class="btn-green" onclick="uploadAndPost()">🚀 UPLOAD & POST NOW - BREAKTHROUGH</button>
+<button class="btn-gray" onclick="saveInstructionOnly()">💾 Save Instruction for Next Auto Post</button>
+<p id="status" style="margin-top:10px;font-size:12px;text-align:center"></p>
+</div>
+
 <script>
-async function load(){
- document.getElementById('t').value = await (await fetch('https://raw.githubusercontent.com/griviann/real-page-brain/main/config.json')).text();
-} load();
+setInterval(()=>{document.getElementById('liveTime').innerText=new Date().toLocaleTimeString()},1000);
+document.getElementById('ghToken').value=localStorage.getItem('ghToken')||'';document.getElementById('repo').value=localStorage.getItem('repo')||'griviann/real-page-brain';
+const bestByHour=new Date().getHours()>=19?'Eldoret':new Date().getHours()>=12?'Nairobi':'Nakuru';document.getElementById('bestCounty').innerText=bestByHour+' (Peak Now)';
+function showTab(t){document.getElementById('tab-post').style.display=t==='post'?'block':'none';document.getElementById('tab-behavior').style.display=t==='behavior'?'block':'none';document.getElementById('tab-intel').style.display=t==='intel'?'block':'none';document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));event.target.classList.add('active')}
+function previewMedia(){const f=document.getElementById('mediaFile').files[0];if(!f)return;if(f.type.startsWith('image')){const r=new FileReader();r.onload=e=>{const p=document.getElementById('preview');p.src=e.target.result;p.style.display='block'};r.readAsDataURL(f);}else{document.getElementById('preview').style.display='none'}}
+function startVoice(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){alert('Voice not supported, use Chrome');return}const rec=new SR();rec.lang='en-KE';rec.start();document.getElementById('voiceText').innerText='🎧 Listening... speak now';rec.onresult=e=>{const txt=e.results[0][0].transcript;document.getElementById('instruction').value=txt;document.getElementById('voiceText').innerText='✅ Heard: '+txt};rec.onerror=()=>{document.getElementById('voiceText').innerText='❌ Try again'}}
+async function uploadToGithub(file,token,repo){const buf=await file.arrayBuffer();let binary='';new Uint8Array(buf).forEach(b=>binary+=String.fromCharCode(b));const content=btoa(binary);const path=`media/${Date.now()}-${file.name.replace(/[^a-z0-9.]/gi,'_')}`;const url=`https://api.github.com/repos/${repo}/contents/${path}`;await fetch(url,{method:'PUT',headers:{Authorization:`token ${token}`,'Content-Type':'application/json'},body:JSON.stringify({message:`V11 Media ${file.name}`,content})});return path}
+async function saveJson(fileName,data,token,repo){const url=`https://api.github.com/repos/${repo}/contents/${fileName}`;let sha=null;try{const r=await fetch(url,{headers:{Authorization:`token ${token}`}});if(r.ok){const j=await r.json();sha=j.sha}}catch(e){}const content=btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2))));await fetch(url,{method:'PUT',headers:{Authorization:`token ${token}`,'Content-Type':'application/json'},body:JSON.stringify({message:`V11 Update ${fileName}`,content,sha})})}
+async function uploadAndPost(){
+ const token=document.getElementById('ghToken').value;const repo=document.getElementById('repo').value;
+ if(!token){alert('Add GitHub Token in INTEL tab first');showTab('intel');return}
+ document.getElementById('status').innerText='⏳ V11 Uploading Magic Media...';
+ try{
+  const file=document.getElementById('mediaFile').files[0];let mediaPath='';let mediaType='';
+  if(file){mediaPath=await uploadToGithub(file,token,repo);mediaType=file.type.startsWith('video')?'video':'image'}
+  const instData={active_instruction:document.getElementById('instruction').value,voice_transcript:document.getElementById('voiceText').innerText,media_file:mediaPath,media_type:mediaType,county_focus:document.getElementById('county').value,tone:document.getElementById('tone').value,price:document.getElementById('price').value,make_video_ad:document.getElementById('makeVideo').checked,magic_enhance:document.getElementById('magic').checked,mpesa_closer:document.getElementById('mpesa').checked,post_now:true,last_updated:new Date().toISOString()};
+  await saveJson('instructions.json',instData,token,repo);
+  document.getElementById('status').innerText='✅ Instruction Saved! Triggering Brain...';
+  await fetch(`https://api.github.com/repos/${repo}/actions/workflows/auto-post.yml/dispatches`,{method:'POST',headers:{Authorization:`token ${token}`,'Content-Type':'application/json'},body:JSON.stringify({ref:'main'})});
+  document.getElementById('status').innerText='🚀 BREAKTHROUGH POSTED! Check Facebook in 60 seconds! 🔥';
+ }catch(e){document.getElementById('status').innerText='❌ Error: '+e.message}
+}
+async function saveInstructionOnly(){
+ const token=document.getElementById('ghToken').value;const repo=document.getElementById('repo').value;
+ const data={active_instruction:document.getElementById('instruction').value,county_focus:document.getElementById('county').value,tone:document.getElementById('tone').value,post_now:false,last_updated:new Date().toISOString()};
+ await saveJson('instructions.json',data,token,repo);document.getElementById('status').innerText='✅ Saved for next auto post';
+}
+async function saveBehavior(){
+ const token=document.getElementById('ghToken').value;const repo=document.getElementById('repo').value;
+ const beh={personality:document.getElementById('personality').value,custom_rule:document.getElementById('behaviorRule').value,mpesa_till:document.getElementById('mpesaTill').value,updated:new Date().toISOString()};
+ await saveJson('behavior.json',beh,token,repo);document.getElementById('status').innerText='🧠 BEHAVIOR SAVED! AI will obey from now';
+}
 </script>
-</body></html>
+</body>
+</html>
