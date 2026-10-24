@@ -3,12 +3,12 @@
   "voice_transcript": "",
   "media_file": "",
   "media_type": "",
-  "county_focus": "Kisumu",
-  "tone": "funny",
-  "price": "",
+  "county_focus": "Nakuru",
+  "tone": "soft",
+  "price": "Welcome all",
   "make_video_ad": false,
   "magic_enhance": true,
   "mpesa_closer": true,
   "post_now": true,
-  "last_updated": "2026-10-24T09:44:54.064Z"
+  "last_updated": "2026-10-24T09:45:34.049Z"
 }
