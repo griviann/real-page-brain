@@ -1,78 +1,51 @@
-import fs from 'fs';
+// V12 REAL Grey Matter - Replica of Meta AI - FREE Groq Version
+const fs = require('fs');
+const FB_TOKEN = process.env.FB_PAGE_ACCESS_TOKEN;
+const PAGE_ID = process.env.FB_PAGE_ID;
+const GROQ_KEY = process.env.GROQ_API_KEY;
+const MEMORY_FILE = 'memory.json';
 
-async function generateAIReply(commentText, userName) {
-  const GEMINI_KEY = process.env.GEMINI_API_KEY;
-  if (!GEMINI_KEY) return null;
+let memory = [];
+if(fs.existsSync(MEMORY_FILE)){
+  try{ memory = JSON.parse(fs.readFileSync(MEMORY_FILE)); }catch{}
+}
 
-  const prompt = `
-You are Real Satisfaction sales agent in Kenya. 
-Customer name: ${userName}
-Comment: "${commentText}"
-Reply in same language as comment (Sheng/Swahili/English). 
-Be short (under 20 words), friendly, Kenyan vibe, add 1 emoji.
-If asks price: say DM for offer.
-If says thanks: thank them warmly.
-If says location: say we deliver countrywide, Nakuru is base.
-Brand slogan: Beyond Imagination.
-`;
-
-  try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+async function think(comment, name){
+  try{
+    const r = await fetch("https://api.groq.com/openai/v1/chat/completions",{
+      method:"POST",
+      headers:{ "Authorization":`Bearer ${GROQ_KEY}`, "Content-Type":"application/json" },
+      body: JSON.stringify({
+        model:"llama-3.1-8b-instant",
+        messages:[
+          {role:"system",content:"You are REAL satisfaction admin Eldoret. Reply Sheng/Swahili mix, short 12-18 words, friendly, varied, helpful like Meta AI. Price 2200 if asked. Never repeat same phrase."},
+          {role:"user",content:`${name} said: ${comment}`}
+        ],
+        temperature:0.9, max_tokens:70
+      })
     });
-    const data = await res.json();
-    return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || null;
-  } catch (e) {
-    console.log("AI fail, using fallback", e.message);
-    return null;
-  }
+    const d = await r.json();
+    return d.choices?.[0]?.message?.content || "Asante mkuu! 🙏 Karibu REAL satisfaction - Beyond Imagination!";
+  }catch(e){ return "Asante mkuu! 🙏 Karibu sana!"; }
 }
 
-function fallbackReply(name, text) {
-  const t = text.toLowerCase();
-  if (t.includes("bei") || t.includes("price")) return `Bei ni friendly ${name} mkuu! Nicheki DM nikupe offer ya leo 🔥`;
-  if (t.includes("wapi") || t.includes("location")) return `Tuko online ${name}! Tunadeliver Kenya mzima, Nakuru home base! DM location yako 🙏`;
-  if (t.includes("asante") || t.includes("thanks")) return `Asante sana ${name} mkuu! 🙏 Real Satisfaction family inakuthamini!`;
-  return `Asante ${name} mkuu! 🙌 Beyond Imagination!`;
-}
-
-async function replyToComments() {
-  const PAGE_ID = process.env.PAGE_ID;
-  const PAGE_TOKEN = process.env.PAGE_TOKEN;
-  if (!PAGE_ID || !PAGE_TOKEN) {
-    console.log("DRY RUN - missing PAGE_ID/TOKEN");
-    return;
-  }
-
-  console.log("🤖 V8 AI Bot starting...");
-  const postsRes = await fetch(`https://graph.facebook.com/v18.0/${PAGE_ID}/posts?fields=id&limit=5&access_token=${PAGE_TOKEN}`);
-  const posts = await postsRes.json();
-
-  for (const post of posts.data || []) {
-    const commentsRes = await fetch(`https://graph.facebook.com/v18.0/${post.id}/comments?fields=id,message,from&access_token=${PAGE_TOKEN}`);
-    const comments = await commentsRes.json();
-
-    for (const c of comments.data || []) {
-      if (c.from?.id === PAGE_ID) continue;
-      const name = c.from?.name?.split(' ')[0] || 'mkuu';
-      const text = c.message || '';
-
-      let reply = await generateAIReply(text, name);
-      if (!reply) reply = fallbackReply(name, text);
-
-      console.log(`Replying to ${name}: ${text} -> ${reply}`);
-
-      await fetch(`https://graph.facebook.com/v18.0/${c.id}/comments`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: reply, access_token: PAGE_TOKEN })
-      });
-      await new Promise(r => setTimeout(r, 2000));
+(async()=>{
+  console.log("V12 Brain starting with memory:", memory.length);
+  const postsRes = await fetch(`https://graph.facebook.com/v18.0/${PAGE_ID}/posts?fields=id&limit=5&access_token=${FB_TOKEN}`);
+  const posts = (await postsRes.json()).data || [];
+  for(const post of posts){
+    const cRes = await fetch(`https://graph.facebook.com/v18.0/${post.id}/comments?fields=id,message,from&access_token=${FB_TOKEN}`);
+    const comments = (await cRes.json()).data || [];
+    for(const c of comments){
+      if(memory.includes(c.id)) { console.log("Skip remembered", c.id); continue; }
+      if(c.from?.id === PAGE_ID) continue;
+      if(!c.message) continue;
+      const reply = await think(c.message, c.from.name);
+      await fetch(`https://graph.facebook.com/v18.0/${c.id}/comments?message=${encodeURIComponent(reply)}&access_token=${FB_TOKEN}`,{method:"POST"});
+      memory.push(c.id);
+      fs.writeFileSync(MEMORY_FILE, JSON.stringify(memory.slice(-300)));
+      console.log(`V12 replied to ${c.from.name}: ${reply}`);
+      await new Promise(x=>setTimeout(x,2500));
     }
   }
-  console.log("✅ V8 AI done!");
-}
-
-replyToComments();
+})();
