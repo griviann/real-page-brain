@@ -1,14 +1,7 @@
 {
-  "active_instruction": "Welcome all",
-  "voice_transcript": "",
-  "media_file": "media/1792839657428-1000006060.mp4",
-  "media_type": "video",
+  "active_instruction": "   Welcome all",
   "county_focus": "auto",
   "tone": "sheng_selling",
-  "price": "",
-  "make_video_ad": false,
-  "magic_enhance": false,
-  "mpesa_closer": false,
-  "post_now": true,
-  "last_updated": "2026-10-24T11:01:00.362Z"
+  "post_now": false,
+  "last_updated": "2026-10-24T11:08:35.816Z"
 }
