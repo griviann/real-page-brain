@@ -1,0 +1,9 @@
+{
+  "version": "V11-BREAKTHROUGH",
+  "personality": "sheng_hustler_closer",
+  "image_magic": { "add_logo": true, "add_price_tag": true, "brand_text": "Real Satisfaction - Beyond Imagination" },
+  "video_ad": { "enabled": true, "voice": "sheng", "duration": 15 },
+  "sales_closer": { "mpesa_till": "YOUR_TILL_HERE", "delivery_fee": { "Eldoret": 0, "Nairobi": 300, "Nakuru": 250, "Kisumu": 300 } },
+  "county_intel": { "Eldoret_peak": "20:00", "Nairobi_peak": "13:00", "best_sellers": {} },
+  "customer_memory": true
+}
