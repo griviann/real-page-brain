@@ -1,50 +1,65 @@
-name: Real Satisfaction Autopilot V9 - 30min Reply
-
+name: Real Satisfaction Autopilot V11 - BREAKTHROUGH
 on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'post_instruction.json'
   schedule:
-    # Every 30 mins for COMMENTS - 7AM to 10PM Kenya time (4-19 UTC)
-    - cron: '0,30 4-19 * * *'
-    # Posts at 8AM, 1PM, 7PM EAT = 5,10,16 UTC (already covered but explicit)
-    - cron: '0 5,10,16 * * *'
-  workflow_dispatch:  # manual test button
+    - cron: '*/30 * * * *'
 
 jobs:
   autopilot:
     runs-on: ubuntu-latest
-    env:
-      PAGE_ID: ${{ secrets.PAGE_ID }}
-      PAGE_TOKEN: ${{ secrets.PAGE_TOKEN }}
-      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js 20
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node V11
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-
-      - name: Check what to run
-        id: check
+          
+      - name: Install Deps
+        run: npm install axios form-data || npm init -y && npm install axios form-data
+        
+      - name: Run V11 Brain
+        env:
+          FB_PAGE_TOKEN: ${{ secrets.FB_PAGE_TOKEN }}
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
         run: |
-          HOUR=$(date -u +%H)
-          echo "Current UTC hour: $HOUR"
-          if [ "$HOUR" = "05" ] || [ "$HOUR" = "10" ] || [ "$HOUR" = "16" ]; then
-            echo "is_post_time=true" >> $GITHUB_OUTPUT
-          else
-            echo "is_post_time=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Run Posting Bot (only at 8AM,1PM,7PM EAT)
-        if: steps.check.outputs.is_post_time == 'true'
-        run: |
-          echo "🚀 POST TIME - Running autopilot.js"
-          node autopilot.js
-          echo "✅ Posting done"
-
-      - name: Run Comment Bot V8 AI (EVERY 30 MINS)
-        run: |
-          echo "🤖 Running commentBot.js - replying to all pending comments"
-          node commentBot.js
-          echo "✅ Comment bot done - next reply in 30 mins"
+          node << 'EOF'
+          const fs = require('fs');
+          const axios = require('axios');
+          
+          (async () => {
+            try {
+              let instruction = {};
+              if (fs.existsSync('post_instruction.json')) {
+                instruction = JSON.parse(fs.readFileSync('post_instruction.json','utf8'));
+              }
+              console.log('V11 Instruction:', instruction);
+              
+              if (!instruction.message) {
+                console.log('No message, using auto-intel');
+                instruction.message = `🔥 REAL SATISFACTION - V11 BREAKTHROUGH!\n\nKoti safi na bei poa! DM for orders Eldoret/Nakuru/Nairobi.\n#RealSatisfaction #Kenya`;
+              }
+              
+              const pageId = process.env.FB_PAGE_ID;
+              const token = process.env.FB_PAGE_TOKEN;
+              
+              if (!pageId || !token) {
+                console.log('Missing FB secrets - check Settings > Secrets');
+                return;
+              }
+              
+              const url = `https://graph.facebook.com/${pageId}/feed`;
+              const res = await axios.post(url, {
+                message: instruction.message,
+                access_token: token
+              });
+              console.log('POSTED SUCCESS:', res.data);
+            } catch (e) {
+              console.error('V11 Error:', e.response?.data || e.message);
+              process.exit(1);
+            }
+          })();
+          EOF
